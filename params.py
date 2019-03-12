@@ -26,7 +26,7 @@ noise_factor = 0.0 # 0.0 necessary
 MainDir = '../Cl_data/'
 
 DataDir = MainDir+'Data/'
-PlotsDir = MainDir+'Plots/'
+PlotsDir = MainDir+'Plots/LFI/'
 ModelDir = MainDir+'Model/'
 
 fileOut = 'P'+str(num_para)+'Model_tot' + str(num_train) + '_batch' + str(batch_size) + '_lr' + \

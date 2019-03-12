@@ -21,9 +21,9 @@ SetPub.set_pub()
 
 ndim = 5
 nwalkers = 300  # 500
-nrun_burn = 50  # 300
-nrun = 1000  # 700
-fileID = 2
+nrun_burn = 10  # 300
+nrun = 100  # 700
+fileID = 0
 
 
 ########## REAL DATA with ERRORS #############################
@@ -52,37 +52,6 @@ with open(dirIn + allfiles[fileID]) as f:
     emin = allCl[:, eminID[fileID]]
 
     print(l.shape)
-
-
-
-
-fileID = 0
-
-
-dirIn = '../Cl_data/RealData/'
-allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt']
-
-lID = np.array([0, 2, 0])
-ClID = np.array([1, 3, 1])
-emaxID = np.array([2, 4, 2])
-eminID = np.array([2, 4, 2])
-
-print(allfiles)
-
-
-# for fileID in [realDataID]:
-with open(dirIn + allfiles[fileID]) as f:
-    lines = (line for line in f if not line.startswith('#'))
-    allCl = np.loadtxt(lines, skiprows=1)
-
-    l2 = allCl[:, lID[fileID]].astype(int)
-    Cl2 = allCl[:, ClID[fileID]]
-    emax2 = allCl[:, emaxID[fileID]]
-    emin2 = allCl[:, eminID[fileID]]
-
-    print(l2.shape)
-
-
 
 
 ############## GP FITTING ################################################################################
@@ -123,21 +92,6 @@ fileOut = params.fileOut
 
 # ----------------------------- i/o ------------------------------------------
 
-
-
-# Trainfiles = np.loadtxt(DataDir + 'P' + str(num_para) + ClID + 'Cl_' + str(num_train) + '.txt')
-# Testfiles = np.loadtxt(DataDir + 'P' + str(num_para) + ClID + 'Cl_' + str(num_test) + '.txt')
-
-# x_train = Trainfiles[:, num_para + 2:]
-# x_test = Testfiles[:, num_para + 2:]
-# y_train = Trainfiles[:, 0: num_para]
-# y_test = Testfiles[:, 0: num_para]
-#
-# print(x_train.shape, 'train sequences')
-# print(x_test.shape, 'test sequences')
-# print(y_train.shape, 'train sequences')
-# print(y_test.shape, 'test sequences')
-
 ls = np.loadtxt(DataDir + 'P' + str(num_para) + 'ls_' + str(num_train) + '.txt')[2:]
 
 # ----------------------------------------------------------------------------
@@ -147,22 +101,6 @@ meanFactor = np.loadtxt(DataDir + 'meanfactorP' + str(num_para) + ClID + '_' + f
 
 print('-------normalization factor:', normFactor)
 print('-------rescaling factor:', meanFactor)
-
-# x_train = x_train - meanFactor  # / 255.
-# x_test = x_test - meanFactor  # / 255.
-#
-# x_train = x_train.astype('float32') / normFactor  # / 255.
-# x_test = x_test.astype('float32') / normFactor  # / 255.
-#
-# x_train = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))
-# x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
-
-# ------------------------------------------------------------------------------
-
-
-
-
-
 
 
 ################# ARCHITECTURE ###############################
@@ -215,82 +153,6 @@ def GPyfit(para_array):
 
     return (normFactor * x_decoded[0]) + meanFactor
 
-
-
-
-
-
-
-
-
-
-normFactor2 = np.loadtxt(DataDir + 'normfactorP' + str(num_para) + ClID + '_' + fileOut + '.txt')
-meanFactor2 = np.loadtxt(DataDir + 'meanfactorP' + str(num_para) + ClID + '_' + fileOut + '.txt')
-
-
-
-GPmodelOutfile = DataDir + 'GPy_model' + str(latent_dim) + ClID + fileOut
-m2 = GPy.models.GPRegression.load_model(GPmodelOutfile + '.zip')
-
-
-decoderFile = ModelDir + 'DecoderP' + str(num_para) + ClID + '_' + fileOut + '.hdf5'
-decoder2 = load_model(decoderFile)
-
-
-def GPyfit2(para_array):
-
-    test_pts = para_array.reshape(num_para, -1).T
-
-    # -------------- Predict latent space ----------------------------------------
-
-    # W_pred = np.array([np.zeros(shape=latent_dim)])
-    # W_pred_var = np.array([np.zeros(shape=latent_dim)])
-
-    m2p = m2.predict(test_pts)  # [0] is the mean and [1] the predictive
-    W_pred = m2p[0]
-    # W_varArray = m1p[1]
-
-
-    # for j in range(latent_dim):
-    #     W_pred[:, j], W_pred_var[:, j] = computedGP["fit{0}".format(j)].predict(encoded_xtrain[j],
-    #                                                                             test_pts)
-
-    # -------------- Decode from latent space --------------------------------------
-
-    x_decoded = decoder2.predict(W_pred.reshape(latent_dim, -1).T )
-
-    return (normFactor2 * x_decoded[0]) + meanFactor2
-
-
-
-######### ---------------------------------------------------------------------------
-
-
-# x_id = 20
-
-# x_decodedGPy = GPyfit(y_test[x_id])
-# computedGP = GPcompute(rescaledTrainParams, latent_dim)
-# x_decoded = GPfit(computedGP, y_test[x_id])
-
-# x_camb = (normFactor * x_test[x_id]) + meanFactor
-
-
-# plt.figure(1423)
-#
-# # plt.plot(x_decoded, 'k--', alpha = 0.4, label = 'George')
-# plt.plot(x_decodedGPy, alpha = 0.4 , label = 'GPy')
-# plt.plot(x_camb, alpha = 0.3 , label = 'camb')
-# plt.legend()
-# plt.show()
-
-
-########################################################################################################################
-########################################################################################################################
-
-#### Cosmological Parameters ########################################
-
-#### Order of parameters: ['Omega_m', 'Omega_b', 'sigma_8', 'h', 'n_s']
-#        [label, true, min, max]
 
 
 
@@ -366,13 +228,6 @@ yerr = emax[l < ls.max()]
 
 
 
-x2 = l2[l2 < ls.max()]
-y2 = Cl2[l2 < ls.max()]
-yerr2 = emax2[l2 < ls.max()]
-
-
-
-
 ## Sample implementation :
 # http://eso-python.github.io/ESOPythonTutorials/ESOPythonDemoDay8_MCMC_with_emcee.html
 # https://users.obs.carnegiescience.edu/cburns/ipynbs/Emcee.html
@@ -406,29 +261,13 @@ def lnlike(theta, x, y, yerr):
 
 
 
-def lnlike2(theta, x, y, yerr):
-    p1, p2, p3, p4, p5 = theta
+# def lnprob(theta, x, y, yerr, x2, y2, yerr2):
+def lnprob(theta, x, y, yerr):
 
-    new_params = np.array([p1, p2, p3, p4, p5])
-
-    model = GPyfit2(new_params)# Using GPy -- using trained model
-
-
-    mask = np.in1d(ls, x)
-    model_mask = model[mask]
-
-    # return -0.5 * (np.sum(((y - model) / yerr) ** 2.))
-    return -0.5 * (np.sum(((y - model_mask) / yerr) ** 2.))
-
-
-
-
-
-def lnprob(theta, x, y, yerr, x2, y2, yerr2):
     lp = lnprior(theta)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + lnlike(theta, x, y, yerr) + lnlike2(theta, x2, y2, yerr2)
+    return lp + lnlike(theta, x, y, yerr) # + lnlike2(theta, x2, y2, yerr2)
 
 
 
@@ -437,7 +276,7 @@ def lnprob(theta, x, y, yerr, x2, y2, yerr2):
 # Let us setup the emcee Ensemble Sampler
 # It is very simple: just one, self-explanatory line
 
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(x, y, yerr, x2, y2, yerr2))
+sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(x, y, yerr))#, x2, y2, yerr2))
 
 ###### BURIN-IN #################
 
@@ -464,13 +303,13 @@ samples_plot = sampler.chain[:, :, :].reshape((-1, ndim))
 
 
 
-np.savetxt(DataDir + 'Sampler_mcmc_ndim' + str(ndim) + '_nwalk' + str(nwalkers) + '_run' + str(
+np.savetxt(DataDir + 'mcmc_abc_ndim' + str(ndim) + '_nwalk' + str(nwalkers) + '_run' + str(
     nrun)  + ClID + '_'  + fileOut + allfiles[fileID][:-4] +'.txt', sampler.chain[:, :, :].reshape((-1, ndim)))
 
 ####### FINAL PARAMETER ESTIMATES #######################################
 
 
-samples_plot  = np.loadtxt(DataDir + 'Sampler_mcmc_ndim' + str(ndim) + '_nwalk' + str(nwalkers) +
+samples_plot  = np.loadtxt(DataDir + 'mcmc_abc_ndim' + str(ndim) + '_nwalk' + str(nwalkers) +
                          '_run' + str(nrun)  + ClID + '_' + fileOut + allfiles[fileID][:-4] +'.txt')
 
 # samples = np.exp(samples)
@@ -480,7 +319,7 @@ print('mcmc results:', p1_mcmc[0], p2_mcmc[0], p3_mcmc[0], p4_mcmc[0], p5_mcmc[0
 
 ####### CORNER PLOT ESTIMATES #######################################
 
-CornerPlot = False
+CornerPlot = True
 if CornerPlot:
 
     fig = corner.corner(samples_plot, labels=[param1[0], param2[0], param3[0], param4[0], param5[0]],
@@ -499,7 +338,7 @@ if CornerPlot:
                         figureSize='MNRAS_page')#, plotDensity = True, filledPlots = False,\smoothingKernel = 0, nContourLevels=3)
 
 
-    fig.savefig(PlotsDir + 'Combined_pygtc_' + str(ndim) + '_nwalk' + str(nwalkers) + '_run' + str(
+    fig.savefig(PlotsDir + 'mcmc_abc_' + str(ndim) + '_nwalk' + str(nwalkers) + '_run' + str(
         nrun)  + ClID + '_' + fileOut + allfiles[fileID][:-4] +'.pdf')
 
 ####### FINAL PARAMETER ESTIMATES #######################################
@@ -556,7 +395,7 @@ if ConvergePlot:
 
 y_mcmc = np.array([ p1_mcmc[0], p2_mcmc[0], p3_mcmc[0], p4_mcmc[0], p5_mcmc[0]] )
 x_decodedGPy = GPyfit(y_mcmc)
-x_decodedGPy2 = GPyfit2(y_mcmc)
+# x_decodedGPy2 = GPyfit2(y_mcmc)
 
 
 
@@ -576,8 +415,8 @@ ax0.set_xlabel(r'$l$')
 
 
 ax1 = plt.subplot(gs[1])
-ax1.errorbar(l2, Cl2, yerr = [emin2, emax2], ecolor = 'k', alpha = 0.05)
-ax1.plot(ls, x_decodedGPy2, 'b--')
+# ax1.errorbar(l2, Cl2, yerr = [emin2, emax2], ecolor = 'k', alpha = 0.05)
+# ax1.plot(ls, x_decodedGPy2, 'b--')
 
 ax1.set_ylabel(r'$l(l+1)C_l/2\pi [\mu K^2]$')
 ax1.set_xlabel(r'$l$')
