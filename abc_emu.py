@@ -91,16 +91,16 @@ from bin_data import *
 # Planck/SPT/WMAP data
 # TE, EE, BB next
 
-fileID = 2
+fileID = 1
 
 
 dirIn = '../Cl_data/RealData/'
-allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt', 'PlankLow']
+allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt', 'PlancklegacyLow.txt']
 
-lID = np.array([0, 2, 0])
-ClID = np.array([1, 3, 1])
-emaxID = np.array([2, 4, 2])
-eminID = np.array([2, 4, 2])
+lID = np.array([0, 2, 0, 0])
+ClID = np.array([1, 3, 1, 1])
+emaxID = np.array([2, 4, 2, 2])
+eminID = np.array([2, 4, 2, 3])
 
 print(allfiles)
 
@@ -201,12 +201,31 @@ GPmodelOutfile = DataDir + 'GPy_model' + str(latent_dim) + ClID + fileOut
 m1 = GPy.models.GPRegression.load_model(GPmodelOutfile + '.zip')
 
 
-decoderFile = ModelDir + 'DecoderP' + str(num_para) + ClID + '_' + fileOut + '.hdf5'
-decoder = load_model(decoderFile)
+# decoderFile = ModelDir + 'DecoderP' + str(num_para) + ClID + '_' + fileOut + '.hdf5'
+# decoder = load_model(decoderFile)
 
 
 
-def GPyfit(para_array):
+
+
+LoadModel = True
+if LoadModel:
+    encoder = load_model(ModelDir + 'EncoderP' + str(num_para) + ClID + '_' + fileOut + '.hdf5')
+    decoder = load_model(ModelDir + 'DecoderP' + str(num_para) + ClID + '_' + fileOut + '.hdf5')
+    history = np.loadtxt(
+        ModelDir + 'TrainingHistoryP' + str(num_para) + ClID + '_' + fileOut + '.txt')
+
+
+
+
+
+
+# GPmodelOutfile = DataDir + 'GPy_model' + str(latent_dim) + ClID + fileOut
+# m1 = GPy.models.GPRegression.load_model(GPmodelOutfile + '.zip')
+
+
+def GPyfit(GPmodelOutfile, para_array):
+
 
     test_pts = para_array.reshape(num_para, -1).T
 
@@ -232,7 +251,6 @@ def GPyfit(para_array):
 
 
 
-
 ## Make sure the changes are made in log prior definition too. Variable: new_params
 
 
@@ -247,7 +265,35 @@ param5 = ["$n_s$", 0.9655, 0.85, 1.05]
 #####################################################################################################
 
 
+trial_params = np.array([0.119, 0.022, 0.829, 0.6731, 0.965])
 
+
+x_decodedGPy = GPyfit(GPmodelOutfile, trial_params)
+# computedGP = GPcompute(rescaledTrainParams, latent_dim)
+# x_decoded = GPfit(computedGP, y_test[x_id])
+
+# x_camb = (normFactor * x_test[x_id]) + meanFactor
+#
+
+plt.figure(1423)
+
+# plt.plot(x_decoded, 'k--', alpha = 0.4, label = 'George')
+plt.plot(x_decodedGPy, '--', alpha = 0.4 , label = 'GPy')
+plt.plot(l, Cl, 'r', alpha = 0.3 , label = 'camb')
+plt.legend()
+plt.show()
+
+
+
+
+
+x = l[l < ls.max()]
+y = Cl[l < ls.max()]
+yerr = emax[l < ls.max()]
+
+
+
+data = y
 
 #####################################################################################################
 
@@ -278,31 +324,35 @@ param5 = ["$n_s$", 0.9655, 0.85, 1.05]
 def ABCsimulation(param): #param = [om, w0]
 
     p1, p2, p3, p4, p5 = param
+    #
+    # if param1[2] < p1 < param1[3] and param2[2] < p2 < param2[3] and param3[2] < p3 < param3[3] \
+    #         and param4[2] < p4 < param4[3] and param5[2] < p5 < param5[3]:
 
-    if param1[2] < p1 < param1[3] and param2[2] < p2 < param2[3] and param3[2] < p3 < param3[3] \
-            and param4[2] < p4 < param4[3] and param5[2] < p5 < param5[3]:
 
-        return [None]*len(ls)
-
-    else:
         # model_1_class = DistanceCalc(param[0],0,1-param[0],0,[param[1],0],0.7)  #om,ok,ol,wmodel,de_params,h0
         # data_abc = np.zeros(len(zbins))
 
 
 
-        new_params = np.array([p1, p2, p3, p4, p5])
-        # model = GPfit(computedGP, new_params)#  Using George -- with model training
+    new_params = np.array([p1, p2, p3, p4, p5])
+    # model = GPfit(computedGP, new_params)#  Using George -- with model training
 
-        model = GPyfit(new_params)  # Using GPy -- using trained model
+    model = GPyfit(GPmodelOutfile, new_params)  # Using GPy -- using trained model
 
 
-        mask = np.in1d(ls, x)
-        model_mask = model[mask]
+    mask = np.in1d(ls, x)
+    model_mask = model[mask]
 
-        return  model_mask
+    return  model_mask
         # for i in range(len(zbins)):
         #         data_abc[i] = model_1_class.mu(zbins[i]) #+ skewnorm.rvs(a, loc=e, scale=w, size=1)
         # return data_abc
+
+
+
+
+    # else:
+    #     return [None] * len(ls)
 
 # #
 # def lnprior(theta):
@@ -316,6 +366,16 @@ def ABCsimulation(param): #param = [om, w0]
 
 
 
+plt.figure(1424)
+
+# plt.plot(x_decoded, 'k--', alpha = 0.4, label = 'George')
+# plt.plot(x_decodedGPy, '--', alpha = 0.4 , label = 'GPy')
+plt.plot(ABCsimulation(trial_params), 'r', label = 'abc_emulator')
+plt.plot(Cl, 'ko', label = 'PLANCK')
+plt.legend()
+plt.show()
+
+
 
 #
 # nparam = 5
@@ -323,14 +383,6 @@ def ABCsimulation(param): #param = [om, w0]
 # niter = 20  #number of iterations
 # tlevels = [500.0,0.005] #maximum,minimum tolerance
 
-
-x = l[l < ls.max()]
-y = Cl[l < ls.max()]
-yerr = emax[l < ls.max()]
-
-
-
-data = y
 
 
 def my_dist(d,y):
@@ -342,10 +394,16 @@ def my_dist(d,y):
 
 
 
+# nparam = 5
+# npart = 100 #100 #number of particles/walkers
+# niter = 20  #number of iterations
+# tlevels = [500.0,0.005] #maximum,minimum tolerance
+
 nparam = 5
-npart = 100 #number of particles/walkers
-niter = 20  #number of iterations
-tlevels = [500.0,0.005] #maximum,minimum tolerance
+npart = 10 #100 #number of particles/walkers
+niter = 10  #number of iterations
+tlevels = [50.0,0.005] #maximum,minimum tolerance
+
 
 prop={'tol_type':'exp',"verbose":1,'adapt_t':True,
       'threshold':75,'pert_kernel':2,'variance_method':0,
@@ -365,7 +423,7 @@ prop={'tol_type':'exp',"verbose":1,'adapt_t':True,
 
 
 priorname  = ["normal","normal", "normal", "normal", "normal"]
-hyperp = [[param1[1], (param1[2] + param1[3])/2.], [param2[1], (param2[2] + param2[3])/2.], [param3[1], (param3[2] + param3[3])/2.], [param4[1], (param4[2] + param4[3])/2.], [param5[1], (param5[2] + param5[3])/2.]]
+hyperp = [[param1[1], (param1[3] - param1[2])/4.], [param2[1], (param2[3] - param2[2])/4.], [param3[1], (param3[3] - param3[2])/4.], [param4[1], (param4[3] - param4[2])/4.], [param5[1], (param5[3] - param5[2])/4.]]
 prior = zip(priorname,hyperp)
 
 

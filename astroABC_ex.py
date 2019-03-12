@@ -92,24 +92,6 @@ def ABCsimulation(param): #param = [om, w0]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 sampler = astroabc.ABC_class(nparam,npart,data,tlevels,niter,prior,**prop)
 sampler.sample(ABCsimulation)
 
