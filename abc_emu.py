@@ -324,35 +324,19 @@ data = y
 def ABCsimulation(param): #param = [om, w0]
 
     p1, p2, p3, p4, p5 = param
-    #
-    # if param1[2] < p1 < param1[3] and param2[2] < p2 < param2[3] and param3[2] < p3 < param3[3] \
-    #         and param4[2] < p4 < param4[3] and param5[2] < p5 < param5[3]:
+    print(param)
 
+    if p1 < param1[2] or p1 > param1[3] or p2 < param2[2] or p2 > param2[3] or p3 < param3[2] or p3 > param3[3] or p4 < param4[2] or p4 > param4[3] or p5 < param5[2] or p5 > param5[3]:
+        return [None] * len(x)
 
-        # model_1_class = DistanceCalc(param[0],0,1-param[0],0,[param[1],0],0.7)  #om,ok,ol,wmodel,de_params,h0
-        # data_abc = np.zeros(len(zbins))
+    else:
 
+        new_params = np.array([p1, p2, p3, p4, p5])
+        model = GPyfit(GPmodelOutfile, new_params)  # Using GPy -- using trained model
+        mask = np.in1d(ls, x)
+        model_mask = model[mask]
 
-
-    new_params = np.array([p1, p2, p3, p4, p5])
-    # model = GPfit(computedGP, new_params)#  Using George -- with model training
-
-    model = GPyfit(GPmodelOutfile, new_params)  # Using GPy -- using trained model
-
-
-    mask = np.in1d(ls, x)
-    model_mask = model[mask]
-
-    return  model_mask
-        # for i in range(len(zbins)):
-        #         data_abc[i] = model_1_class.mu(zbins[i]) #+ skewnorm.rvs(a, loc=e, scale=w, size=1)
-        # return data_abc
-
-
-
-
-    # else:
-    #     return [None] * len(ls)
+        return  model_mask
 
 # #
 # def lnprior(theta):
@@ -362,7 +346,6 @@ def ABCsimulation(param): #param = [om, w0]
 #             and param4[2] < p4 < param4[3] and param5[2] < p5 < param5[3]:
 #         return 0.0
 #     return -np.inf
-#
 
 
 
@@ -394,16 +377,10 @@ def my_dist(d,y):
 
 
 
-# nparam = 5
-# npart = 100 #100 #number of particles/walkers
-# niter = 20  #number of iterations
-# tlevels = [500.0,0.005] #maximum,minimum tolerance
-
 nparam = 5
 npart = 10 #100 #number of particles/walkers
-niter = 10  #number of iterations
-tlevels = [50.0,0.005] #maximum,minimum tolerance
-
+niter = 20  #number of iterations
+tlevels = [500.0,0.005] #maximum,minimum tolerance
 
 prop={'tol_type':'exp',"verbose":1,'adapt_t':True,
       'threshold':75,'pert_kernel':2,'variance_method':0,
@@ -424,6 +401,7 @@ prop={'tol_type':'exp',"verbose":1,'adapt_t':True,
 
 priorname  = ["normal","normal", "normal", "normal", "normal"]
 hyperp = [[param1[1], (param1[3] - param1[2])/4.], [param2[1], (param2[3] - param2[2])/4.], [param3[1], (param3[3] - param3[2])/4.], [param4[1], (param4[3] - param4[2])/4.], [param5[1], (param5[3] - param5[2])/4.]]
+
 prior = zip(priorname,hyperp)
 
 
