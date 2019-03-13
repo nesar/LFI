@@ -243,7 +243,7 @@ def ABCsimulation(param): #param = [om, w0]
 
     else:
 
-        new_params = np.array([p1, 0.222, p3, 0.7, 0.8])
+        new_params = np.array([p1, 0.222, p3, 0.6731, 0.9])
         model = GPyfit(GPmodelOutfile, new_params)  # Using GPy -- using trained model
         mask = np.in1d(ls, x)
         model_mask = model[mask]
