@@ -100,7 +100,7 @@ sampler.sample(ABCsimulation)
 ######### PLOTTING ROUTINE ################
 
 ###########################################################################
-samples_plot = sampler.chain[:, :, :].reshape((-1, nparam))
+# samples_plot = sampler.chain[:, :, :].reshape((-1, nparam))
 
 print(sampler.outfile)
 ####### FINAL PARAMETER ESTIMATES #######################################
