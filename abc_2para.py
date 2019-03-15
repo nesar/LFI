@@ -292,18 +292,24 @@ def my_dist(d,y):
     if y[0]==None:
         return float('Inf')
     else:
-        return np.sum(((y-d)/yerr)**2)
-
-
+        # return np.sum(((y-d)/yerr)**2)
+        return np.min(((y - d) / yerr) ** 2)
 
 
 print('my_dist typical value', my_dist(data, ABCsimulation([0.119, 0.8])))
+
+plt.figure(3)
+plt.plot(data)
+plt.plot(ABCsimulation([0.119, 0.8]))
+plt.show()
 
 
 nparam = 2
 npart = 10 #100 #number of particles/walkers
 niter = 20  #number of iterations
 tlevels = [200000.0, 200] #maximum,minimum tolerance
+tlevels = [500.0,0.005] #maximum,minimum tolerance
+
 
 
 
