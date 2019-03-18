@@ -28,20 +28,28 @@ nrun_burn = 10  # 50 # 50  # 300
 nrun = 50  # 300  # 700
 fileID = 1
 
+###### for ell < 30
+ndim = 2
+nwalkers= 100 #100 #number of particles/walkers
+nrun = 75  #number of iterations
+
+
 ########## REAL DATA with ERRORS #############################
 # Planck/SPT/WMAP data
 # TE, EE, BB next
+
 
 fileID = 3
 
 
 dirIn = '../Cl_data/RealData/'
-allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt', 'PlancklegacyLow.txt']
+allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt', 'PlancklegacyLow_ell29.txt',
+            'PlancklegacyLow_all.txt']
 
-lID = np.array([0, 2, 0, 0])
-ClID = np.array([1, 3, 1, 1])
-emaxID = np.array([2, 4, 2, 2])
-eminID = np.array([2, 4, 2, 3])
+lID = np.array([0, 2, 0, 0, 0])
+ClID = np.array([1, 3, 1, 1, 1])
+emaxID = np.array([2, 4, 2, 2, 2])
+eminID = np.array([2, 4, 2, 3, 3])
 
 print(allfiles)
 

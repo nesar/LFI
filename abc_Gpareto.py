@@ -87,12 +87,13 @@ fileID = 3
 
 
 dirIn = '../Cl_data/RealData/'
-allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt', 'PlancklegacyLow.txt']
+allfiles = ['WMAP.txt', 'SPTpol.txt', 'PLANCKlegacy.txt', 'PlancklegacyLow_ell29.txt',
+            'PlancklegacyLow_all.txt']
 
-lID = np.array([0, 2, 0, 0])
-ClID = np.array([1, 3, 1, 1])
-emaxID = np.array([2, 4, 2, 2])
-eminID = np.array([2, 4, 2, 3])
+lID = np.array([0, 2, 0, 0, 0])
+ClID = np.array([1, 3, 1, 1, 1])
+emaxID = np.array([2, 4, 2, 2, 2])
+eminID = np.array([2, 4, 2, 3, 3])
 
 print(allfiles)
 
@@ -440,6 +441,16 @@ niter = 50  #number of iterations
 tlevels = [5000.0, 0.5] #maximum,minimum tolerance
 
 
+###### for ell < 30
+nparam = 2
+npart = 100 #100 #number of particles/walkers
+niter = 75  #number of iterations
+# tlevels = [200000.0, 200] #maximum,minimum tolerance
+# tlevels = [500.0, 0.005] #maximum,minimum tolerance
+# tlevels = [1e-6,1e-12] #maximum,minimum tolerance
+# tlevels = [5000.0, 0.05] #maximum,minimum tolerance
+tlevels = [5000.0, 0.05] #maximum,minimum tolerance
+
 
 
 
@@ -494,8 +505,8 @@ samples_plot = samples_plot[:, :-2]
 import pygtc
 fig = pygtc.plotGTC(samples_plot, paramNames=[r'$\Omega_m$', r'$\sigma_8$'], nContourLevels = 3, truths= [0.1187,  0.802] ,figureSize='MNRAS_page', plotName='abcPlanck.pdf')
 
-fig.savefig('abc_pygtc_' + str(nparam) + '_nwalk' + str(npart) + '_run' + str(niter) + ClID +
-            '_' + fileOut + allfiles[fileID][:-4] + '.pdf')
+fig.savefig('abc_pygtc_' + str(nparam) + '_nwalk' + str(npart) + '_run' + str(niter) + str(ClID[
+    fileID]) + '_' + fileOut + allfiles[fileID][:-4] + '.pdf')
 
 
 
@@ -522,6 +533,7 @@ if CompareMCMC:
 
     samples_mcmc = np.loadtxt('mcmc_ndim2_nwalk100_run50TT_P5Model_tot1024_batch8_lr0.0001_decay1'
                               '.0_z32_epoch7500PlancklegacyLow.txt')
+    samples_mcmc = np.loadtxt('mcmc_ndim2_nwalk100_run50TT_P5Model_tot1024_batch8_lr0.0001_decay1.0_z32_epoch7500PlancklegacyLow_ell29.txt')
 
     samples_abc = np.loadtxt('abc_pmc_output_2param.txt', skiprows=1)[:, :-2]
 
@@ -536,7 +548,7 @@ if CompareMCMC:
 
     fig = pygtc.plotGTC(chains=[samples_mcmc, samples_abc], paramNames=[r'$\Omega_m$',
                                                                         r'$\sigma_8$'], truths= [
-        0.1187,  0.802], colorsOrder=('blues', 'reds'), chainLabels=["MCMC", "ABC-SMC"], nContourLevels=2, filledPlots = False, figureSize='MNRAS_page')  # , plotDensity = True, filledPlots = False,\smoothingKernel = 0,
+        0.1187,  0.802], colorsOrder=('blues', 'reds'), chainLabels=["MCMC", "ABC-SMC"], nContourLevels=2, filledPlots = True, figureSize='MNRAS_page')  # , plotDensity = True, filledPlots = False,\smoothingKernel = 0,
     # nContourLevels=3)
 
 
