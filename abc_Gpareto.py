@@ -76,8 +76,8 @@ ls = np.loadtxt(DataDir + 'P' + str(num_para) + 'ls_' + str(num_train) + '.txt')
 #
 # # ----------------------------------------------------------------------------
 #
-normFactor = np.loadtxt(DataDir + 'normfactorP' + str(num_para) + ClID + '_' + fileOut + '.txt')
-meanFactor = np.loadtxt(DataDir + 'meanfactorP' + str(num_para) + ClID + '_' + fileOut + '.txt')
+# normFactor = np.loadtxt(DataDir + 'normfactorP' + str(num_para) + ClID + '_' + fileOut + '.txt')
+# meanFactor = np.loadtxt(DataDir + 'meanfactorP' + str(num_para) + ClID + '_' + fileOut + '.txt')
 
 ########## REAL DATA with ERRORS #############################
 # Planck/SPT/WMAP data
@@ -245,7 +245,7 @@ r('''if(file.exists("abcR_GP_models.RData")){
 
      }''')
 
-r('''''')
+# r('''''')
 
 #########################################################################################
 ## All GP fitting together -- workes fine, except we get one value of variance for all
@@ -512,7 +512,7 @@ fig.savefig('abc_pygtc_' + str(nparam) + '_nwalk' + str(npart) + '_run' + str(ni
 
 ################################################################3
 
-CompareMCMC = True
+CompareMCMC = False
 
 
 if CompareMCMC:
